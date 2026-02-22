@@ -151,9 +151,53 @@ See [models/notebook/MODELLING_README.md](models/notebook/MODELLING_README.md) f
 
 ---
 
+## CI/CD
+
+Three GitHub Actions workflows live in `app/.github/workflows/`.
+
+### `ci.yml` — Lint & Tests
+
+Triggers on every push to `main` or `develop`, and on pull requests targeting `main`.
+
+| Step | What it does |
+|---|---|
+| Setup | Checks out code, sets up Python 3.11 |
+| Install | Installs `requirements.txt` + `requirements-dev.txt` |
+| Lint | Runs **Ruff** over `backend/`, `retrain/`, and `tests/` |
+| Test | Runs the full pytest suite with verbose output |
+
+### `cd.yml` — Deploy
+
+Triggers on every push to `main` (after CI passes). Runs two independent jobs in parallel:
+
+| Job | Target | Tool |
+|---|---|---|
+| `deploy-backend` | Railway | Railway CLI (`railway up --detach`) |
+| `deploy-frontend` | Vercel | Vercel CLI (`vercel --prod`) |
+
+Required secrets: `RAILWAY_TOKEN`, `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`.
+
+### `retrain.yml` — Retrain Model
+
+Manually triggered via `workflow_dispatch`. Accepts an optional `train_csv` input (path or URL; defaults to `data/train.csv`).
+
+| Step | What it does |
+|---|---|
+| Setup | Checks out code, sets up Python 3.11, installs `retrain/requirements.txt` |
+| Retrain | Runs `retrain/retrain.py` and writes the new artifact to `backend/model.pkl` |
+| Commit | Commits and pushes the updated `model.pkl` if it changed (tagged `[skip ci]` to avoid a loop) |
+
+---
+
 ## Deployment
 
-The application is deployed and publicly accessible. _Link to be added._
+The application is deployed and publicly accessible. (https://amusing-connection-production.up.railway.app)
+
+---
+
+## Further Documentation
+
+Detailed backend architecture — layer diagrams, service descriptions, API schemas, and the full directory reference — is documented in [app/ARCHITECTURE.md](app/ARCHITECTURE.md).
 
 ---
 
