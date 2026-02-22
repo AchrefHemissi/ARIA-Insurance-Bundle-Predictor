@@ -1,10 +1,14 @@
 # test_latency.py
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import pandas as pd
 import time
-from solution import preprocess, load_model, predict
+from submission_v7.solution import preprocess, load_model, predict
 
 # Load test data
-df = pd.read_csv("../Data/test.csv")
+df = pd.read_csv("Data/test.csv")
 
 # These run before the clock (same as judge)
 df_processed = preprocess(df)
