@@ -5,7 +5,8 @@
       "Bash(/home/tesla/Desktop/DataQuest/DataQuest/venv/bin/python:*)",
       "Bash(/home/tesla/Desktop/DataQuest/DataQuest/venv/bin/pip show imbalanced-learn)",
       "Bash(/home/tesla/Desktop/DataQuest/DataQuest/venv/bin/pip show lightgbm)",
-      "Bash(source:*)"
+      "Bash(source:*)",
+      "Bash(git commit:*)"
     ],
     "additionalDirectories": [
       "/tmp"
