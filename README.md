@@ -2,7 +2,7 @@
 
 **ARIA** (Autonomous Risk Intelligence Advisor) is a full-stack machine learning application that predicts which insurance coverage bundle a client will purchase. A conversational web UI guides users through collecting a client profile, which is passed to a trained LightGBM classifier that returns a predicted bundle with confidence scoring and SHAP-based explanations.
 
-🚀 **Live Demo:** (https://amusing-connection-production.up.railway.app)
+🚀 **Live Demo:** (<https://amusing-connection-production.up.railway.app>)
 
 ---
 
@@ -31,28 +31,85 @@
 
 ```
 ├── app/
-│   ├── backend/              FastAPI application
+│   ├── backend/                    FastAPI application
 │   │   ├── app/
-│   │   │   ├── main.py       App factory & lifespan
-│   │   │   ├── config.py     Centralised constants
-│   │   │   ├── api/          Route handlers & dependencies
-│   │   │   ├── core/         Model loader & metrics store
-│   │   │   ├── schemas/      Pydantic request/response models
-│   │   │   └── services/     Preprocessor, predictor, explainer
+│   │   │   ├── main.py             App factory & lifespan
+│   │   │   ├── config.py           Centralised constants
+│   │   │   ├── api/
+│   │   │   │   ├── deps.py         Shared dependencies
+│   │   │   │   └── routes/         health · metrics · model · predict
+│   │   │   ├── core/
+│   │   │   │   ├── model_loader.py LightGBM + preprocessor loader
+│   │   │   │   └── metrics.py      In-memory metrics store
+│   │   │   ├── schemas/
+│   │   │   │   └── schemas.py      Pydantic request/response models
+│   │   │   └── services/
+│   │   │       ├── preprocessor.py 62-feature pipeline
+│   │   │       ├── predictor.py    Inference + confidence bands
+│   │   │       └── explainer.py    SHAP TreeExplainer wrapper
+│   │   ├── model.pkl               Trained LightGBM (1.86 MB)
 │   │   ├── Dockerfile
+│   │   ├── requirements.txt
+│   │   └── requirements-dev.txt
+│   ├── frontend/                   Next.js 14 application
+│   │   ├── app/                    App Router
+│   │   │   ├── page.tsx            Home / landing
+│   │   │   ├── predict/            Conversational predict UI
+│   │   │   ├── batch/              CSV batch upload & results
+│   │   │   └── dashboard/          Live observability panel
+│   │   ├── components/
+│   │   │   ├── aria-avatar.tsx     Animated ARIA avatar
+│   │   │   ├── nav.tsx             Top navigation bar
+│   │   │   ├── starfield.tsx       Background particle effect
+│   │   │   ├── predict/            Step-form input components
+│   │   │   └── ui/                 Radix-based component library
+│   │   ├── hooks/                  use-mobile · use-toast · use-typewriter
+│   │   ├── lib/
+│   │   │   ├── api.ts              Typed API client
+│   │   │   └── utils.ts            Shared utilities
+│   │   └── public/                 Icons & static assets
+│   ├── retrain/
+│   │   ├── retrain.py              Full retraining pipeline
 │   │   └── requirements.txt
-│   ├── frontend/             Next.js application
-│   │   ├── app/              App Router pages (/, /predict, /batch, /dashboard)
-│   │   ├── components/       UI components & ARIA avatar
-│   │   ├── hooks/
-│   │   └── lib/              API client & utilities
+│   ├── tests/
+│   │   ├── conftest.py
+│   │   ├── test_api.py
+│   │   ├── test_predict.py
+│   │   └── test_preprocess.py
+│   ├── .github/workflows/
+│   │   ├── ci.yml                  Lint & test on push / PR
+│   │   ├── cd.yml                  Deploy backend (Railway) + frontend (Vercel)
+│   │   └── retrain.yml             Manual model retrain trigger
+│   ├── ARCHITECTURE.md             Layer diagrams & full directory reference
 │   └── docker-compose.yml
 ├── models/
-│   ├── notebook/             Jupyter notebooks (EDA, cleaning, modelling)
-│   ├── submissions/          Versioned submission scripts (v1–v7)
-│   ├── Data/                 Raw and processed CSVs
-│   └── retrain/              Retraining script
-└── tests/                    API, prediction, and preprocessing tests
+│   ├── README.md                   Full technical report (ML side)
+│   ├── SOLUTION.md                 One-page key-decisions summary
+│   ├── DataQuest_Technical_Report.tex  LaTeX technical report
+│   ├── Data/
+│   │   ├── raw/                    train.csv · test.csv (competition data)
+│   │   └── processed/              train_clean.csv · test_clean.csv
+│   ├── notebook/
+│   │   ├── assets/                 EDA & model visualisation PNGs
+│   │   ├── data_visualization.ipynb  EDA — 69 cells of analysis
+│   │   ├── cleaning.ipynb          Cleaning pipeline → processed CSVs
+│   │   ├── modelling.ipynb         Initial exploration (v1–v2)
+│   │   ├── modelling_best_model_v7.ipynb  Best model + SHAP explainability
+│   │   ├── technical_report.ipynb  Narrative report with inline visualisations
+│   │   └── submit.ipynb            Submission generation helper
+│   ├── submissions/
+│   │   ├── submission_v1/          150 trees + threshold tuning  (score 0.3331)
+│   │   ├── submission_v2/          75 trees, raw argmax          (score 0.4583)
+│   │   ├── submission_v3/          50 trees, latency test        (score 0.4253)
+│   │   ├── submission_v4/          150 shallow trees depth=4     (score 0.4188)
+│   │   ├── submission_v5/          Full-train encoding fix        (score 0.4640)
+│   │   ├── submission_v6/          Intermediate iteration
+│   │   └── submission_v7/          All improvements — best model  (score 0.4875)
+│   └── test/
+│       └── test_latency.py         Local latency benchmark
+├── README.md                       ← You are here
+├── technical_report.pdf            Compiled PDF of the LaTeX report
+└── DataQuest-Brief-Document.pdf    Original competition brief
 ```
 
 ---
@@ -151,7 +208,7 @@ See [models/notebook/MODELLING_README.md](models/notebook/MODELLING_README.md) f
 
 ---
 
-## CI/CD
+## MLOps
 
 Three GitHub Actions workflows live in `app/.github/workflows/`.
 
@@ -191,7 +248,7 @@ Manually triggered via `workflow_dispatch`. Accepts an optional `train_csv` inpu
 
 ## Deployment
 
-The application is deployed and publicly accessible. (https://amusing-connection-production.up.railway.app)
+The application is deployed and publicly accessible. (<https://amusing-connection-production.up.railway.app>)
 
 ---
 
@@ -203,4 +260,4 @@ Detailed backend architecture — layer diagrams, service descriptions, API sche
 
 ## License
 
-This project was built for the DataQuest competition. All rights reserved.
+ARIA — Insurance Bundle Predictor was built for the DataQuest competition. All rights reserved.
