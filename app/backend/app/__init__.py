@@ -1,0 +1,1 @@
+"""Insurance Bundle Prediction API."""

@@ -1,0 +1,42 @@
+name: Retrain Model
+
+on:
+  workflow_dispatch:
+    inputs:
+      train_csv:
+        description: "Path or URL to the training CSV"
+        required: false
+        default: "data/train.csv"
+
+jobs:
+  retrain:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install retrain dependencies
+        run: pip install -r retrain/requirements.txt
+
+      - name: Run retraining
+        env:
+          TRAIN_CSV_PATH: ${{ github.event.inputs.train_csv }}
+        run: python retrain/retrain.py --train "$TRAIN_CSV_PATH" --out backend/model.pkl
+
+      - name: Commit & push new model
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet backend/model.pkl; then
+            echo "Model unchanged — skipping commit."
+          else
+            git add backend/model.pkl
+            git commit -m "chore: retrained model.pkl [skip ci]"
+            git push
+          fi
