@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/home/tesla/Desktop/DataQuest/DataQuest/venv/bin/jupyter nbconvert:*)",
+      "Bash(/home/tesla/Desktop/DataQuest/DataQuest/venv/bin/python:*)",
+      "Bash(/home/tesla/Desktop/DataQuest/DataQuest/venv/bin/pip show imbalanced-learn)",
+      "Bash(/home/tesla/Desktop/DataQuest/DataQuest/venv/bin/pip show lightgbm)",
+      "Bash(source:*)"
+    ],
+    "additionalDirectories": [
+      "/tmp"
+    ]
+  }
+}
